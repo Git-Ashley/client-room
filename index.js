@@ -34,16 +34,16 @@ export default class ClientRoom {
       .then(response => response.json())
       .then(response => {
         console.log(`response json: ${JSON.stringify(response)}`);
-        if(response.success && response.id && response.wsUrl){
+        if(response.success && response.id && response.url){
           this._id = response.id;
         } else if(response.error) {
           throw `Error while requesting to join ${url}: ${response.error.message}`;
         } else {
           throw `Unspecified error while requesting to join ${url}`;
         }
-        return response.wsUrl;
+        return response.url;
       })
-      .then(wsUrl => Sockets.get(wsUrl))
+      .then(url => Sockets.get(url))
       .then(socket => {this._socket = socket});
   }
 

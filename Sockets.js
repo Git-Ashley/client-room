@@ -39,6 +39,21 @@ class SocketHandler {
       for(let listener of listeners)
         listener(event.data);
     });
+
+    this._socket.addEventListener('close', () => {
+      console.log('socket closed.');
+      const listeners1 = this._eventListeners['DISCONNECT'];
+      const listeners2 = this._eventListeners['disconnect'];
+      if(listeners1){
+        for(let listener of listeners1)
+          listener();
+      }
+      if(listeners2){
+        for(let listener of listeners2){
+          listener();
+        }
+      }
+    });
   }
 
   _enqueue(task){
