@@ -49,13 +49,14 @@ export default class ClientRoom {
 
   // Call this once you are ready to start receiving events from this room
   initialized(){
-    console.log(`${this._id} emitting CLIENT_INITIALIZED`);
+    console.log('Initialized() invoked');
     for(let [event, listener] of this._socketEventsMap)
       this._socket.on(event, listener);
     this.emit('CLIENT_INITIALIZED');
   }
 
   emit(event, ...args){
+    console.log(`emitting ${event}`);
     this._socket.emit(`${this._id}${event}`, ...args);
   }
 
