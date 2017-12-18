@@ -36,10 +36,13 @@ export default class ClientRoom {
         console.log(`response json: ${JSON.stringify(response)}`);
         if(response.success && response.id && response.url){
           this._id = response.id;
-        } else if(response.error) {
-          throw `Error while requesting to join ${url}: ${response.error.message}`;
+        } else if(response.error && response.error.message) {
+          throw response.error.message;
         } else {
-          throw `Unspecified error while requesting to join ${url}`;
+          if(response.reason)
+            throw response.reason;
+          else
+            throw `Error while requesting to join ${url} with result ${JSON.stringify(response)}. Please contact support and show them this result`;
         }
         return response.url;
       })
@@ -56,7 +59,7 @@ export default class ClientRoom {
   }
 
   emit(event, ...args){
-    console.log(`emitting ${event}`);
+    console.log(`emitting ${this._id}${event}`);
     this._socket.emit(`${this._id}${event}`, ...args);
   }
 
