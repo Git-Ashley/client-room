@@ -8,9 +8,8 @@
 import * as Sockets from './Sockets.js';
 
 const Rooms = new Map();
-export Rooms;
 
-export class ClientRoom {
+class ClientRoom {
   constructor(ops = {}){
     this._socket = null;
     this._id = null;
@@ -99,3 +98,5 @@ export class ClientRoom {
   }
 
 }
+
+export {ClientRoom, Rooms};
