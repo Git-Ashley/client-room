@@ -15,6 +15,7 @@ class ClientRoom {
     this._id = null;
     this._socketEventsMap = new Map();
     this._url = ops.url;
+    this._listenerContext = null;
 
     //bindings
     this.join = this.join.bind(this);
@@ -36,6 +37,14 @@ class ClientRoom {
     return this._id;
   }
 
+  get listenerContext(){
+    return this._listenerContext;
+  }
+
+  set listenerContext(context){
+    this._listenerContext = context;
+  }
+
   _reconnect(){
     //TODO
     //Try to re-establish the WS connection & wait for connect event? Then emit
@@ -44,8 +53,18 @@ class ClientRoom {
     //P.S. this may be something to be handled by SocketHandler?
   }
 
-  on(inputEvent, listener){
+  on(inputEvent, inputListener){
     const event = inputEvent === 'disconnect' ? inputEvent : `${this.id}${inputEvent}`;
+    let listener = inputListener;
+    if(this.listenerContext){
+      listener = (...args) => {
+        if(this.listenerContext)
+          return inputListener.apply(this.listenerContext, args);
+        else
+          console.log('Error: Listener context not set!');
+      }
+    }
+
     this._socketEventsMap.set(event, listener);
   }
 
@@ -77,8 +96,10 @@ class ClientRoom {
         return response.url;
       })
       .then(url => Sockets.get(url))
-      .then(socket => {this._socket = socket})
-      .then(() => Rooms.set(this._id, this));
+      .then(socket => {
+        this._socket = socket;
+        Rooms.set(this._id, this);
+      });
   }
 
   // Call this once you are ready to start receiving events from this room
