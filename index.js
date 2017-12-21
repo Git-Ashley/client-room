@@ -7,16 +7,43 @@
 
 import * as Sockets from './Sockets.js';
 
-export default class ClientRoom {
+const Rooms = new Map();
+export Rooms;
+
+export class ClientRoom {
   constructor(ops = {}){
     this._socket = null;
     this._id = null;
     this._socketEventsMap = new Map();
     this._url = ops.url;
+
+    //bindings
+    this.join = this.join.bind(this);
+
+    //TODO Make this
+    this.on('disconnect', () => {
+      //For now, until reconnection capabalities are developed, we just leave room
+      //and are expected to refresh page. (Server disconnect => leave, same as server)
+      this.leave();
+
+      //TODO this._reconnect()
+      //Make this a hook? Better for inheritance, and not having to do multiple
+      //listeners.... and there's other stuff which could trigger disconnects...
+      //testing, etc... just do hooks like backend. onDisconnect, onReconnect.
+    });
   }
 
-  on(event, listener){
-    this._socketEventsMap.set(`${this._id}${event}`, listener);
+  _reconnect(){
+    //TODO
+    //Try to re-establish the WS connection & wait for connect event? Then emit
+    //reconnect on socket handler... but leaving the room should never be done
+    //on reconnect, since the goal is to always reconnect.
+    //P.S. this may be something to be handled by SocketHandler?
+  }
+
+  on(inputEvent, listener){
+    const event = inputEvent === 'disconnect' ? inputEvent : `${this.id}${inputEvent}`;
+    this._socketEventsMap.set(event, listener);
   }
 
   join(inputUrl){
@@ -47,7 +74,8 @@ export default class ClientRoom {
         return response.url;
       })
       .then(url => Sockets.get(url))
-      .then(socket => {this._socket = socket});
+      .then(socket => {this._socket = socket})
+      .then(() => Rooms.set(this._id, this));
   }
 
   // Call this once you are ready to start receiving events from this room
@@ -65,6 +93,7 @@ export default class ClientRoom {
 
   leave(){
     this.emit('EXIT');
+    Rooms.delete(this._id);
     for(let [event, listener] of this._socketEventsMap)
       this._socket.removeListener(event, listener);
   }
