@@ -111,7 +111,7 @@ class ClientRoom {
   }
 
   emit(event, ...args){
-    console.log(`emitting ${this._id}${event}`);
+    //console.log(`emitting ${this._id}${event}`);
     this._socket.emit(`${this._id}${event}`, ...args);
   }
 
