@@ -32,6 +32,10 @@ class ClientRoom {
     });
   }
 
+  get id(){
+    return this._id;
+  }
+
   _reconnect(){
     //TODO
     //Try to re-establish the WS connection & wait for connect event? Then emit
