@@ -7,6 +7,10 @@
 
 import * as Sockets from './Sockets.js';
 
+
+/**
+* @deprecated
+* If you want to globally store rooms (discouraged) then make your own map*/
 const Rooms = new Map();
 
 class ClientRoom {
@@ -37,10 +41,12 @@ class ClientRoom {
     return this._id;
   }
 
+  /**@deprecated*/
   get listenerContext(){
     return this._listenerContext;
   }
 
+  /**@deprecated*/
   set listenerContext(context){
     this._listenerContext = context;
   }
@@ -61,7 +67,7 @@ class ClientRoom {
         if(this.listenerContext)
           return inputListener.apply(this.listenerContext, args);
         else
-          console.log('Error: Listener context not set!');
+          console.log('Listener context not set');
       }
     }
 
