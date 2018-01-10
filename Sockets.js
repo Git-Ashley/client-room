@@ -10,25 +10,32 @@
 class SocketHandler {
 
   constructor(url){
-    let modifiedUrl = null;
     if(!url.startsWith('ws'))
-      modifiedUrl = `wss://${window.location.hostname}${url}`;
+      this._url = `wss://${window.location.hostname}${url}`;
     else
-      modifiedUrl = url;
-    this._socket = new WebSocket(modifiedUrl);
+      this._url = url;
+
+    this._socket = new WebSocket(`${this._url}?live=false`);
     this._eventListeners = {};
     this._connectListeners = [];
-    this.delayedTasks = [];
+    this._delayedTasks = [];
+    this._live = false;
     this._init();
   }
 
   _init(){
     this._socket.addEventListener('open', () => {
-      console.log(`open. delayedTasks: ${this.delayedTasks.length}`);
-      while(this.delayedTasks.length > 0)
-        this.delayedTasks.shift()();
+      while(this._delayedTasks.length > 0)
+        this._delayedTasks.shift()();
       while(this._connectListeners.length > 0)
         this._connectListeners.shift()();
+
+      const eventType = this._live ? 'reconnect' : 'connect';
+      console.log(`Socket to ${this._url} ${eventType}ed`);
+      const listeners = this._eventListeners[eventType];
+      this._live = true;
+      if(listeners)
+        listeners.forEach(listener => listener());
     });
 
     this._socket.addEventListener('message', eventJson => {
@@ -41,20 +48,36 @@ class SocketHandler {
     });
 
     this._socket.addEventListener('close', () => {
-      console.log('socket closed.');
       const listeners = this._eventListeners['disconnect'];
       if(listeners)
         listeners.forEach(listener => listener());
+      this._reconnect();
     });
+
+    this._socket.addEventListener('error', error => {
+      console.log(`Websocket error to ${this._url}: ${JSON.stringify(error)}`);
+      const listeners = this._eventListeners['error'];
+      if(listeners)
+        listeners.forEach(listener => listener());
+    });
+  }
+
+  _reconnect(){
+    console.log(`Websocket to ${this._url} disconnected. Attempting to reconnect...`);
+    setTimeout(() => {
+      this._socket = new WebSocket(`${this._url}?live=true`);
+      this._init();
+    }, 3000);
   }
 
   _enqueue(task){
     if(this._socket.readyState === WebSocket.OPEN)
       task();
     else
-      this.delayedTasks.push(task);
+      this._delayedTasks.push(task);
   }
 
+  /**@deprecated*/ //Use 'connect' event instead
   onConnect(listener){
     this._connectListeners.push(listener);
   }

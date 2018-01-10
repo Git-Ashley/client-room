@@ -23,18 +23,6 @@ class ClientRoom {
 
     //bindings
     this.join = this.join.bind(this);
-
-    //TODO Make this
-    this.on('disconnect', () => {
-      //For now, until reconnection capabalities are developed, we just leave room
-      //and are expected to refresh page. (Server disconnect => leave, same as server)
-      this.leave();
-
-      //TODO this._reconnect()
-      //Make this a hook? Better for inheritance, and not having to do multiple
-      //listeners.... and there's other stuff which could trigger disconnects...
-      //testing, etc... just do hooks like backend. onDisconnect, onReconnect.
-    });
   }
 
   get id(){
@@ -51,16 +39,10 @@ class ClientRoom {
     this._listenerContext = context;
   }
 
-  _reconnect(){
-    //TODO
-    //Try to re-establish the WS connection & wait for connect event? Then emit
-    //reconnect on socket handler... but leaving the room should never be done
-    //on reconnect, since the goal is to always reconnect.
-    //P.S. this may be something to be handled by SocketHandler?
-  }
-
   on(inputEvent, inputListener){
-    const event = inputEvent === 'disconnect' ? inputEvent : `${this.id}${inputEvent}`;
+    const event = inputEvent === 'disconnect'  || inputEvent === 'reconnect'
+      || inputEvent === 'connect' ?
+      inputEvent : `${this.id}${inputEvent}`;
     let listener = inputListener;
     if(this.listenerContext){
       listener = (...args) => {
