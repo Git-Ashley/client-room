@@ -7,6 +7,8 @@
   2. Multiple listeners per event should be an option you have to forcefully set
 */
 
+const wsMap = new Map();
+
 class SocketHandler {
 
   constructor(url){
@@ -16,6 +18,7 @@ class SocketHandler {
       this._url = url;
 
     this._socket = new WebSocket(`${this._url}?live=false`);
+    this._unmodifiedUrl = url;
     this._eventListeners = {};
     this._connectListeners = [];
     this._delayedTasks = [];
@@ -51,7 +54,8 @@ class SocketHandler {
       const listeners = this._eventListeners['disconnect'];
       if(listeners)
         listeners.forEach(listener => listener());
-      this._reconnect();
+      if(this._live)
+        this._reconnect();
     });
 
     this._socket.addEventListener('error', error => {
@@ -106,16 +110,17 @@ class SocketHandler {
 
   emit(type, data){
     this._enqueue(() => {
+      console.log(`Emitting ${type}.`);
       this._socket.send(JSON.stringify({type,data}));
     });
   }
 
   close(...args){
-    this._enqueue(() => this._socket.close(...args));
+    this._live = false;
+    this._socket.close(...args);
+    wsMap.delete(this._unmodifiedUrl);
   }
 }
-
-const wsMap = new Map();
 
 export function get(url){
   return new Promise((resolve, reject) => {
