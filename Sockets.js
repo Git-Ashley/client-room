@@ -12,17 +12,16 @@ const wsMap = new Map();
 class SocketHandler {
 
   constructor(url){
-    if(!url.startsWith('ws'))
-      this._url = `wss://${window.location.hostname}${url}`;
-    else
-      this._url = url;
-
+    this._url = url;
     this._socket = new WebSocket(`${this._url}?live=false`);
     this._unmodifiedUrl = url;
     this._eventListeners = {};
     this._connectListeners = [];
     this._delayedTasks = [];
     this._live = false;
+
+    this.on('ping', () => this.emit('pong'));
+
     this._init();
   }
 
@@ -75,10 +74,12 @@ class SocketHandler {
   }
 
   _enqueue(task){
-    if(this._socket.readyState === WebSocket.OPEN)
-      task();
-    else
-      this._delayedTasks.push(task);
+    if(this._socket){
+      if(this._socket.readyState === WebSocket.OPEN)
+        task();
+      else
+        this._delayedTasks.push(task);
+    }
   }
 
   /**@deprecated*/ //Use 'connect' event instead
@@ -110,19 +111,30 @@ class SocketHandler {
 
   emit(type, data){
     this._enqueue(() => {
-      console.log(`Emitting ${type}.`);
       this._socket.send(JSON.stringify({type,data}));
     });
   }
 
   close(...args){
     this._live = false;
-    this._socket.close(...args);
+    this._socket && this._socket.close(...args);
+    this._socket = null;
     wsMap.delete(this._unmodifiedUrl);
   }
 }
 
-export function get(url){
+export function get(inputUrl){
+  if(!inputUrl)
+    inputUrl = '';
+
+  let url = null;
+  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
+  if(!inputUrl.startsWith('ws'))
+    url = `${protocol}//${window.location.hostname}${inputUrl}${port}`;
+  else
+    url = inputUrl;
+
   return new Promise((resolve, reject) => {
     let socket = wsMap.get(url);
     if(!socket){

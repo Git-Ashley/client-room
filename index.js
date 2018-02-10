@@ -23,6 +23,8 @@ class ClientRoom {
 
     //bindings
     this.join = this.join.bind(this);
+    this.emit = this.emit.bind(this);
+    this.leave = this.leave.bind(this);
   }
 
   get id(){
@@ -56,12 +58,12 @@ class ClientRoom {
     this._socketEventsMap.set(event, listener);
   }
 
-  join(inputUrl){
+  join(inputUrl, payload){
     const url = inputUrl || this._url;
     if(!url)
       return Promise.reject(new Error(`URL not defined when attempting to join room ${this._id}`));
 
-    return fetch(url, {headers: {'Accept': 'application/json'}, method: 'POST', credentials: 'same-origin'})
+    return fetch(url, {headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}, method: 'POST', credentials: 'same-origin', body: JSON.stringify(payload)})
       .then(response => {
         console.log(`status for join: ${response.status}`)
         if(response.ok)
@@ -71,7 +73,7 @@ class ClientRoom {
       .then(response => response.json())
       .then(response => {
         console.log(`response json: ${JSON.stringify(response)}`);
-        if(response.success && response.id && response.url){
+        if(response.success && response.id){
           this._id = response.id;
         } else if(response.error && response.error.message) {
           throw response.error.message;
@@ -99,15 +101,20 @@ class ClientRoom {
   }
 
   emit(event, ...args){
-    //console.log(`emitting ${this._id}${event}`);
     this._socket.emit(`${this._id}${event}`, ...args);
   }
 
   leave(){
-    this.emit('EXIT');
-    Rooms.delete(this._id);
-    for(let [event, listener] of this._socketEventsMap)
-      this._socket.removeListener(event, listener);
+    if(this._socket){ //check we have actually joined first
+      this.emit('EXIT');
+      Rooms.delete(this._id);
+      for(let [event, listener] of this._socketEventsMap)
+        this._socket.removeListener(event, listener);
+      if(!Rooms.size)
+        this._socket.close();
+    } else {
+      Rooms.delete(this._id);
+    }
   }
 
 }
