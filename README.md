@@ -6,9 +6,7 @@ Example use:
 
 ```javascript
 import ClientRoom from './node_modules/client-room/index.js';
-import randomStr from 'path/to/random-str-generator';
 
-document.cookie = `sid=${randomStr()}; `;
 const testRoom = new ClientRoom();
 
 testRoom.join('/api/testroom')
