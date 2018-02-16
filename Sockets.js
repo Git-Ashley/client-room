@@ -82,7 +82,7 @@ class SocketHandler {
     }
   }
 
-  /**@deprecated*/ //Use 'connect' event instead
+  /**@deprecated Use 'connect' event instead*/
   onConnect(listener){
     this._connectListeners.push(listener);
   }
@@ -128,12 +128,14 @@ export function get(inputUrl){
     inputUrl = '';
 
   let url = null;
-  const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
-  if(!inputUrl.startsWith('ws'))
+
+  if(!inputUrl.startsWith('ws')){
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
     url = `${protocol}//${window.location.hostname}${inputUrl}${port}`;
-  else
+  } else {
     url = inputUrl;
+  }
 
   return new Promise((resolve, reject) => {
     let socket = wsMap.get(url);
