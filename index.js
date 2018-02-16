@@ -72,7 +72,6 @@ class ClientRoom {
       })
       .then(response => response.json())
       .then(response => {
-        console.log(`response json: ${JSON.stringify(response)}`);
         if(response.success && response.id){
           this._id = response.id;
         } else if(response.error && response.error.message) {
