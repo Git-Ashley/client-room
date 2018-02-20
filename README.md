@@ -19,3 +19,5 @@ testRoom.join('/api/testroom')
 ```
 
 You can also specify the room join url in the constructor ```new ClientRoom({url: '/api/testroom'});``` and use ```clientRoom.join()``` with no Url
+
+Samples, tutorial and api-docs can be found at https://www.nodeocrat.com/projects/Room
