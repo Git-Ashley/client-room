@@ -30,12 +30,12 @@ class ClientRoom {
   get listenerContext(){
     return this._listenerContext;
   }
-
+  
   /**@deprecated*/
   set listenerContext(context){
     this._listenerContext = context;
   }
-
+  
   on(event, inputListener){
     let listener = inputListener;
     if(this.listenerContext){
@@ -77,15 +77,17 @@ class ClientRoom {
           else
             throw `Error while requesting to join ${url} with result ${JSON.stringify(response)}. Please contact support and show them this result`;
         }
-            
-        for(let [event, listener] of this._socketEventsMap)
-          this._socket.on(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : response.id}${event}`, listener);
+      
         return response.url;
       })
       .then(url => Sockets.get(url))
       .then(socket => {
         this._socket = socket;
         Rooms.set(this._id, this);
+      })
+      .then(() => {
+        for(let [event, listener] of this._socketEventsMap)
+          this._socket.on(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : response.id}${event}`, listener);
       });
   }
 
