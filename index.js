@@ -20,11 +20,6 @@ class ClientRoom {
     this._socketEventsMap = new Map();
     this._url = ops.url;
     this._listenerContext = null;
-
-    //bindings
-    this.join = this.join.bind(this);
-    this.emit = this.emit.bind(this);
-    this.leave = this.leave.bind(this);
   }
 
   get id(){
@@ -58,7 +53,7 @@ class ClientRoom {
     }
   }
 
-  join(inputUrl, payload){
+  join = (inputUrl, payload) => {
     const url = inputUrl || this._url;
     if(!url)
       return Promise.reject(new Error(`URL not defined when attempting to join room ${this._id}`));
@@ -94,11 +89,11 @@ class ClientRoom {
       });
   }
 
-  emit(event, ...args){
+  emit = (event, ...args) => {
     this._socket.emit(`${this._id}${event}`, ...args);
   }
 
-  leave(){
+  leave = () => {
     if(this._socket){ //check we have actually joined first
       this.emit('EXIT');
       Rooms.delete(this._id);
