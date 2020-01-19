@@ -41,10 +41,7 @@ class ClientRoom {
     this._listenerContext = context;
   }
 
-  on(inputEvent, inputListener){
-    const event = inputEvent === 'disconnect'  || inputEvent === 'reconnect'
-      || inputEvent === 'connect' ?
-      inputEvent : `${this.id}${inputEvent}`;
+  on(event, inputListener){
     let listener = inputListener;
     if(this.listenerContext){
       listener = (...args) => {
@@ -56,6 +53,9 @@ class ClientRoom {
     }
 
     this._socketEventsMap.set(event, listener);
+    if (this.id) {
+      this._socket.on(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : this.id}${event}`, listener);
+    }
   }
 
   join(inputUrl, payload){
@@ -82,6 +82,9 @@ class ClientRoom {
           else
             throw `Error while requesting to join ${url} with result ${JSON.stringify(response)}. Please contact support and show them this result`;
         }
+            
+        for(let [event, listener] of this._socketEventsMap)
+          this._socket.on(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : response.id}${event}`, listener);
         return response.url;
       })
       .then(url => Sockets.get(url))
@@ -89,14 +92,6 @@ class ClientRoom {
         this._socket = socket;
         Rooms.set(this._id, this);
       });
-  }
-
-  // Call this once you are ready to start receiving events from this room
-  initialized(){
-    console.log('Initialized() invoked');
-    for(let [event, listener] of this._socketEventsMap)
-      this._socket.on(event, listener);
-    this.emit('CLIENT_INITIALIZED');
   }
 
   emit(event, ...args){
@@ -108,7 +103,7 @@ class ClientRoom {
       this.emit('EXIT');
       Rooms.delete(this._id);
       for(let [event, listener] of this._socketEventsMap)
-        this._socket.removeListener(event, listener);
+        this._socket.removeListener(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : id}${event}`, listener);
       if(!Rooms.size)
         this._socket.close();
     } else {
