@@ -142,9 +142,7 @@ export function get(inputUrl){
     if(!socket){
       socket = new SocketHandler(url);
       wsMap.set(url, socket);
-      socket.onConnect(() => resolve(socket));
-    } else {
-      return resolve(socket);
     }
+    return resolve(socket);
   });
 }
