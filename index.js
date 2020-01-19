@@ -87,7 +87,7 @@ class ClientRoom {
       })
       .then(() => {
         for(let [event, listener] of this._socketEventsMap)
-          this._socket.on(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : response.id}${event}`, listener);
+          this._socket.on(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : this.id}${event}`, listener);
       });
   }
 
