@@ -124,14 +124,12 @@ class SocketHandler {
 }
 
 export function get(inputUrl = ''){
-  let url = null;
+  let url = inputUrl;
 
   if(!inputUrl.startsWith('ws')){
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
     url = `${protocol}//${window.location.hostname}${inputUrl}${port}`;
-  } else {
-    url = inputUrl;
   }
 
   return new Promise((resolve, reject) => {
