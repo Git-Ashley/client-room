@@ -123,10 +123,7 @@ class SocketHandler {
   }
 }
 
-export function get(inputUrl){
-  if(!inputUrl)
-    inputUrl = '';
-
+export function get(inputUrl = ''){
   let url = null;
 
   if(!inputUrl.startsWith('ws')){
