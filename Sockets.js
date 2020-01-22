@@ -127,9 +127,16 @@ export function get(inputUrl = ''){
   let url = inputUrl;
 
   if(!inputUrl.startsWith('ws')){
+    // Then inputUrl is a path... :s
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
-    url = `${protocol}//${window.location.hostname}${inputUrl}${port}`;
+    try {
+      if (process.env.NODE_ENV !== 'production' && process.env.REACT_APP_DEV_HOSTNAME) {
+        url = `${protocol}//${process.env.REACT_APP_DEV_HOSTNAME}${port}${inputUrl}`;
+      } else {
+        url = `${protocol}//${window.location.hostname}${port}${inputUrl}`;
+      }
+    } catch(e){}
   }
 
   return new Promise((resolve, reject) => {

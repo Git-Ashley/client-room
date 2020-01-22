@@ -7,10 +7,6 @@
 
 import * as Sockets from './Sockets.js';
 
-
-/**
-* @deprecated
-* If you want to globally store rooms (discouraged) then make your own map*/
 const Rooms = new Map();
 
 class ClientRoom {
