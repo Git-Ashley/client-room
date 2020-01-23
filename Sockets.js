@@ -132,7 +132,7 @@ export function get(inputUrl = ''){
     const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
     try {
       if (process.env.NODE_ENV !== 'production' && process.env.REACT_APP_DEV_HOSTNAME) {
-        url = `${protocol}//${process.env.REACT_APP_DEV_HOSTNAME}${port}${inputUrl}`;
+        url = `${protocol}//${process.env.REACT_APP_DEV_HOSTNAME}${inputUrl}`;
       } else {
         url = `${protocol}//${window.location.hostname}${port}${inputUrl}`;
       }
