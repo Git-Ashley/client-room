@@ -82,9 +82,16 @@ class SocketHandler {
     }
   }
 
-  /**@deprecated Use 'connect' event instead*/
+  isConnected(){
+    return this._socket.readyState === WebSocket.OPEN;
+  }
+
   onConnect(listener){
-    this._connectListeners.push(listener);
+    if(this.isConnected()) {
+      setTimeout(listener, 0);
+    } else {
+      this._connectListeners.push(listener);
+    }
   }
 
   on(event, listener){

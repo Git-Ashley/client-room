@@ -16,6 +16,7 @@ class ClientRoom {
     this._socketEventsMap = new Map();
     this._url = ops.url;
     this._listenerContext = null;
+    this._onConnectListener = null;
     
     this.join = this.join.bind(this);
     this.emit = this.emit.bind(this);
@@ -53,6 +54,10 @@ class ClientRoom {
     }
   }
 
+  onConnect(listener) {
+    this._onConnectListener = listener;
+  }
+
   join(inputUrl, payload) {
     const url = inputUrl || this._url;
     if(!url)
@@ -88,6 +93,8 @@ class ClientRoom {
       .then(() => {
         for(let [event, listener] of this._socketEventsMap)
           this._socket.on(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : this.id}${event}`, listener);
+        if (this._onConnectListener)
+          this._socket.onConnect(this._onConnectListener);
       });
   }
 
