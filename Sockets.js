@@ -131,8 +131,8 @@ export function get(inputUrl = ''){
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
     try {
-      if (process.env.REACT_APP_DEV_HOSTNAME) {
-        url = `${protocol}//${process.env.REACT_APP_DEV_HOSTNAME}${inputUrl}`;
+      if (process.env.REACT_APP_DEV_HOST) {
+        url = `${protocol}//${process.env.REACT_APP_DEV_HOST}${inputUrl}`;
       } else {
         url = `${protocol}//${window.location.hostname}${port}${inputUrl}`;
       }
