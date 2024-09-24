@@ -107,7 +107,7 @@ class ClientRoom {
       this.emit('EXIT');
       Rooms.delete(this._id);
       for(let [event, listener] of this._socketEventsMap)
-        this._socket.removeListener(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : id}${event}`, listener);
+        this._socket.removeListener(`${['connect', 'reconnect', 'disconnect'].includes(event) ? '' : this.id}${event}`, listener);
       if(!Rooms.size)
         this._socket.close();
     } else {
