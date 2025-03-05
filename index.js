@@ -58,12 +58,12 @@ class ClientRoom {
     this._onConnectListener = listener;
   }
 
-  join(inputUrl, payload) {
+  join(inputUrl, payload, options = {}) {
     const url = inputUrl || this._url;
     if(!url)
       return Promise.reject(new Error(`URL not defined when attempting to join room ${this._id}`));
 
-    return fetch(url, {headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}, method: 'POST', credentials: 'same-origin', body: JSON.stringify(payload)})
+    return fetch(url, {headers: {'Accept': 'application/json', 'Content-Type': 'application/json'}, method: 'POST', credentials: 'same-origin', body: JSON.stringify(payload), ...options })
       .then(response => {
         console.log(`status for join: ${response.status}`)
         if(response.ok)
