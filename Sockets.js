@@ -13,7 +13,7 @@ class SocketHandler {
 
   constructor(url){
     this._url = url;
-    this._socket = new WebSocket(`${this._url}?live=false`);
+    this._socket = new WebSocket(this._url);
     this._unmodifiedUrl = url;
     this._eventListeners = {};
     this._connectListeners = [];
@@ -130,7 +130,7 @@ class SocketHandler {
   }
 }
 
-export function get(inputUrl = ''){
+export function get(inputUrl = '', sidHeader = null){
   let url = inputUrl;
 
   if(!inputUrl.startsWith('ws')){
@@ -146,10 +146,17 @@ export function get(inputUrl = ''){
     } catch(e){}
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     let socket = wsMap.get(url);
     if(!socket){
-      socket = new SocketHandler(url);
+      let urlWithLive = `${url}?live=false`;
+      if (!sidHeader) {
+        socket = new SocketHandler(urlWithLive);
+      } else { // If you don't want to deal with cookies, use sidHeader (less secure)
+        const sidValue = localStorage.getItem(sidHeader);
+        socket = new SocketHandler(`${urlWithLive}&${sidHeader}=${sidValue}`);
+      }
+
       wsMap.set(url, socket);
     }
     return resolve(socket);
