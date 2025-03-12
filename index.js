@@ -15,7 +15,6 @@ class ClientRoom {
     this._id = null;
     this._socketEventsMap = new Map();
     this._url = ops.url;
-    this._sidHeader = ops.sidHeader;
     this._listenerContext = null;
     this._onConnectListener = null;
     
@@ -86,7 +85,7 @@ class ClientRoom {
       
         return response.url;
       })
-      .then(url => Sockets.get(url, this._sidHeader))
+      .then(url => Sockets.get(url))
       .then(socket => {
         this._socket = socket;
         Rooms.set(this._id, this);
