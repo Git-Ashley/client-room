@@ -134,6 +134,7 @@ export function get(inputUrl = '', path){
   let url = `${inputUrl}${path}`;
 
   if(!url.startsWith('ws')){
+    url = url.replace(/(^\w+:|^)\/\//, '');
     if (!inputUrl) {
       const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
 
