@@ -15,6 +15,7 @@ class ClientRoom {
     this._id = null;
     this._socketEventsMap = new Map();
     this._url = ops.url;
+    this._wsUrl = ops.wsUrl;
     this._listenerContext = null;
     this._onConnectListener = null;
     
