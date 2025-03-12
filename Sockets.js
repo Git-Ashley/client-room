@@ -130,23 +130,21 @@ class SocketHandler {
   }
 }
 
-export function get(inputUrl = ''){
-  let url = inputUrl;
+export function get(inputUrl = '', path){
+  let url = `${inputUrl}${path}`;
 
-  if(!inputUrl.startsWith('ws')){
-    // Then inputUrl is a path... :s
+  if(!url.startsWith('ws')){
+    if (!inputUrl) {
+      const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
+
+      url = `${protocol}//${window.location.hostname}${port}${inputUrl}`;
+    }
+
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-    const port = window.location.port === "" ? window.location.port : `:${window.location.port}`;
-    try {
-      if (process.env.REACT_APP_DEV_HOST) {
-        url = `${protocol}//${process.env.REACT_APP_DEV_HOST}${inputUrl}`;
-      } else {
-        url = `${protocol}//${window.location.hostname}${port}${inputUrl}`;
-      }
-    } catch(e){}
+    url = `${protocol}//${url}`;
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     let socket = wsMap.get(url);
     if(!socket){
       socket = new SocketHandler(url);

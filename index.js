@@ -85,7 +85,7 @@ class ClientRoom {
       
         return response.url;
       })
-      .then(url => Sockets.get(url))
+      .then(url => Sockets.get(this._wsUrl, url))
       .then(socket => {
         this._socket = socket;
         Rooms.set(this._id, this);
